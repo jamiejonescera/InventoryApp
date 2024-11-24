@@ -9,11 +9,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [
-    'inventoryapp-3-co2c.onrender.com',  
-    '127.0.0.1',
-    'localhost',
-]
+ALLOWED_HOSTS = ['inventoryapp-3-co2c.onrender.com', '127.0.0.1', 'localhost']
+
+
 
 
 INSTALLED_APPS = [
@@ -86,7 +84,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'inventory', 'static')]
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'inventory', 'static')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

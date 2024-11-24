@@ -8,7 +8,11 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['your-app-name.onrender.com', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'inventoryapp-3-co2c.onrender.com',  # Add your Render domain
+    '127.0.0.1',  # For local development
+    'localhost',  # Optional, for safety
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -52,7 +56,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'inventory_project.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
 
 AUTH_PASSWORD_VALIDATORS = [

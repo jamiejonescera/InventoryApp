@@ -1,1 +1,1 @@
-web: gunicorn inventory_project.wsgi --log-file -
+gunicorn inventory_project.wsgi:application

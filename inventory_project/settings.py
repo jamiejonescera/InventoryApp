@@ -9,7 +9,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
-    'inventoryapp-3-co2c.onrender.com',  # Add your Render domain
+    'https://inventoryapp-3-co2c.onrender.com',  # Add your Render domain
     '127.0.0.1',  # For local development
     'localhost',  # Optional, for safety
 ]

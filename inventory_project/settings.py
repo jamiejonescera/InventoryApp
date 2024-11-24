@@ -82,9 +82,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'inventory', 'static')]
+STATIC_URL = '/static/'  # Keep this as Django requires it.
+STATICFILES_DIRS = []    # Ensure this is empty to avoid collecting extra files.
+STATIC_ROOT = None       # Remove the STATIC_ROOT to avoid collectstatic errors.
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import dj_database_url
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,10 +10,11 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
-    'https://inventoryapp-3-co2c.onrender.com',  # Add your Render domain
-    '127.0.0.1',  # For local development
-    'localhost',  # Optional, for safety
+    'inventoryapp-3-co2c.onrender.com',  
+    '127.0.0.1',
+    'localhost',
 ]
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -55,8 +57,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'inventory_project.wsgi.application'
 
+
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL')  # Fetch from .env during local development
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [

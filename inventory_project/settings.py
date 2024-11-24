@@ -30,7 +30,7 @@ from decouple import Config, Csv
 config = Config()
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('DJANGO_SECRET_KEY', default='c78f658bcb7ccb221cd7ca153564e193')  # Use your provided key
+SECRET_KEY = config('DJANGO_SECRET_KEY', default='django-insecure-d)l0cc_df&wc_md0tb_l%b2y%w1abq$7ns9)wb^=mg1d^g_w-g')  # Use your provided key
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)

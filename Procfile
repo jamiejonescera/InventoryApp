@@ -1,1 +1,1 @@
-gunicorn inventory_project.wsgi:application
+gunicorn inventory_project.wsgi:application --bind 0.0.0.0:$PORT

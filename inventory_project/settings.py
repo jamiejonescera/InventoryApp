@@ -26,12 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-d)l0cc_df&wc_md0tb_l%b2y%w1abq$7ns9)wb^=mg1d^g_w-g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'inventoryapp-yybc.onrender.com']
-
-
+# Fetch ALLOWED_HOSTS from the environment variables
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: v.split(','))
 
 
 # Application definition

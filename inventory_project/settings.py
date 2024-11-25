@@ -29,8 +29,8 @@ SECRET_KEY = 'django-insecure-d)l0cc_df&wc_md0tb_l%b2y%w1abq$7ns9)wb^=mg1d^g_w-g
 DEBUG = True
 
 
-# Allow all hosts
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+
 
 
 # Application definition
@@ -87,9 +87,12 @@ WSGI_APPLICATION = 'inventory_project.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL')  # Ensure DATABASE_URL is correctly set
+        default=config('DATABASE_URL')
     )
 }
+
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

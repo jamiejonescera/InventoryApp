@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product
+from .models import Product, Classroom
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 def inventory_view(request):
     products = Product.objects.all()
@@ -52,3 +54,15 @@ def inventory_view(request):
         })
 
     return render(request, 'inventory/inventory.html', {'products': products, 'error': error})
+
+class ClassroomListView(APIView):
+    def get(self, request):
+        try:
+            classrooms = Classroom.objects.all().values(
+                "id",
+                "classroom_name"
+            )
+            
+            return Response({"classrooms": list(classrooms)}, status=200)
+        except Exception as e:
+            return Response({"error": "An error has occured"}, status=403)

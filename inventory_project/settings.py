@@ -92,6 +92,7 @@ WSGI_APPLICATION = 'inventory_project.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
+
 # postgresql://inventory_project_inventory_user:CHXIoiZ215Lv43rRkiWdlJYQLTjR1CtT@dpg-ct36pdggph6c73bqe2jg-a.oregon-postgres.render.com/inventory_project_inventory
 
 

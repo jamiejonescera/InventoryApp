@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Classroom
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.contrib import messages
 
 def inventory_view(request):
     products = Product.objects.all()
@@ -54,6 +55,54 @@ def inventory_view(request):
         })
 
     return render(request, 'inventory/inventory.html', {'products': products, 'error': error})
+
+def classroom_view(request):
+    classrooms = Classroom.objects.all()
+    edit_classroom = None  # To store the classroom being edited
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        classroom_id = request.POST.get('classroom_id')
+        
+        try:
+            if action == 'add_or_update':
+                # Add or Update logic
+                classroom_name = request.POST.get('classroom_name', '').strip()
+
+                if not classroom_name:
+                    messages.error(request, "Classroom name cannot be empty")
+                    return render(request, 'inventory/classroom.html', {'classrooms': classrooms})
+
+                if classroom_id:  # Editing existing classroom
+                    classroom = Classroom.objects.get(id=classroom_id)
+                    classroom.classroom_name = classroom_name
+                    classroom.save()
+                    messages.success(request, "Edited Successfully!")
+                    return render(request, 'inventory/classroom.html', {"classrooms": classroom})
+                    
+                    
+                else:  # Adding a new classroom
+                    classroom, created = Classroom.objects.get_or_create(classroom_name=classroom_name)
+                    if not created:
+                        messages.error(request, "Classroom already exists")
+
+            elif action == 'edit' and classroom_id:
+                edit_classroom = get_object_or_404(Classroom, id=classroom_id)
+
+            elif action == 'delete' and classroom_id:
+                Classroom.objects.filter(id=classroom_id).delete()
+
+            messages.success(request, "Success!")
+            return render(request, 'inventory/classroom.html', {
+                'classrooms': classrooms,
+                'edit_classroom': edit_classroom
+            })
+        
+        except Exception as e:
+            messages.error(request, "Failed to Add a Classroom...")
+    else:
+         messages.error(request, "Request is not a POST method.")
+         return render(request, 'inventory/classroom.html', {'classrooms': classrooms})
 
 class ClassroomListView(APIView):
     def get(self, request):

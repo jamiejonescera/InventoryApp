@@ -58,60 +58,66 @@ def inventory_view(request):
 
 def classroom_view(request):
     classrooms = Classroom.objects.all()
-    edit_classroom = None  # To store the classroom being edited
+    edit_classroom = None
+
+    # Check for 'edit_id' in GET request to prefill the form for editing
+    edit_id = request.GET.get('edit_id')
+    if edit_id:
+        try:
+            edit_classroom = Classroom.objects.get(id=edit_id)
+        except Classroom.DoesNotExist:
+            messages.error(request, "Classroom not found.")
+            return redirect('classroom')  # Redirect if classroom not found
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        classroom_id = request.POST.get('classroom_id')
-        
+        classroom_id = request.POST.get('classroom_id', '').strip()
+        classroom_name = request.POST.get('classroom_name', '').strip()
+
         try:
             if action == 'add_or_update':
-                # Add or Update logic
-                classroom_name = request.POST.get('classroom_name', '').strip()
-
                 if not classroom_name:
-                    messages.error(request, "Classroom name cannot be empty")
-                    return render(request, 'inventory/classroom.html', {'classrooms': classrooms})
-
-                if classroom_id:  # Editing existing classroom
-                    classroom = Classroom.objects.get(id=classroom_id)
+                    messages.error(request, "Classroom name cannot be empty.")
+                elif classroom_id:  # Editing existing classroom
+                    classroom = get_object_or_404(Classroom, id=classroom_id)
                     classroom.classroom_name = classroom_name
                     classroom.save()
-                    messages.success(request, "Edited Successfully!")
-                    return render(request, 'inventory/classroom.html', {"classrooms": classroom})
-                    
-                    
+                    messages.success(request, "Classroom edited successfully.")
                 else:  # Adding a new classroom
                     classroom, created = Classroom.objects.get_or_create(classroom_name=classroom_name)
-                    if not created:
-                        messages.error(request, "Classroom already exists")
+                    if created:
+                        messages.success(request, "Classroom added successfully.")
+                    else:
+                        messages.error(request, "Classroom already exists.")
 
             elif action == 'edit' and classroom_id:
-                edit_classroom = get_object_or_404(Classroom, id=classroom_id)
+                return redirect(f'{request.path}?edit_id={classroom_id}')
 
             elif action == 'delete' and classroom_id:
-                Classroom.objects.filter(id=classroom_id).delete()
+                classroom = get_object_or_404(Classroom, id=classroom_id)
+                classroom.delete()
+                messages.success(request, "Classroom deleted successfully.")
+            else:
+                messages.error(request, "Invalid action or missing classroom ID.")
 
-            messages.success(request, "Success!")
-            return render(request, 'inventory/classroom.html', {
-                'classrooms': classrooms,
-                'edit_classroom': edit_classroom
-            })
-        
+        except Classroom.DoesNotExist:
+            messages.error(request, "Classroom not found.")
         except Exception as e:
-            messages.error(request, "Failed to Add a Classroom...")
-    else:
-         messages.error(request, "Request is not a POST method.")
-         return render(request, 'inventory/classroom.html', {'classrooms': classrooms})
+            messages.error(request, f"An unexpected error occurred: {e}")
+
+        # Redirect after handling form submission to avoid resubmission
+        return redirect('classroom')
+
+    return render(request, 'inventory/classroom.html', {
+        'classrooms': classrooms,
+        'edit_classroom': edit_classroom
+    })
+
 
 class ClassroomListView(APIView):
     def get(self, request):
         try:
-            classrooms = Classroom.objects.all().values(
-                "id",
-                "classroom_name"
-            )
-            
+            classrooms = Classroom.objects.all().values("id", "classroom_name")
             return Response({"classrooms": list(classrooms)}, status=200)
         except Exception as e:
-            return Response({"error": "An error has occured"}, status=403)
+            return Response({"error": f"An error occurred: {e}"}, status=403)

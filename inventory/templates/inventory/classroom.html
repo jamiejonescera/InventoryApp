@@ -35,7 +35,7 @@
             display: block;
             margin-bottom: 5px;
         }
-        input[type="text"] {
+        input[type="text"], select {
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
@@ -54,81 +54,205 @@
             color: red;
             font-weight: bold;
         }
+        .filter-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .filter-container label {
+            margin-right: 10px;
+        }
+        .status-filter {
+            padding: 8px;
+        }
     </style>
+
+    <!-- DataTables Core CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 </head>
 <body>
     <h1>Classroom Management</h1>
 
-    <!-- Display Success and Error Messages -->
     {% if messages %}
     <ul>
         {% for message in messages %}
         <li 
             {% if message.tags %} 
                 class="{{ message.tags }}" 
-            {% endif %}
-        >
+            {% endif %}>
             {{ message }}
         </li>
         {% endfor %}
     </ul>
     {% endif %}
 
-    <!-- Add/Update Form -->
+    <div class="filter-container">
+        <h2>Classroom List</h2>
+        <div>
+            <label>Filter by Status: 
+                <select class="status-filter" data-column="1">
+                    <option value="">All</option>
+                    <option value="Available">Available</option>
+                    <option value="Taken">Taken</option>
+                </select>
+            </label>
+        </div>
+        <div>
+            <label>Search: 
+                <input type="text" id="globalSearch" placeholder="Search...">
+            </label>
+        </div>
+    </div>
+
     <form method="POST">
         {% csrf_token %}
         {% if edit_classroom %}
-        <input type="hidden" name="classroom_id" value="{{ edit_classroom.id }}">
-        <div class="form-group">
-            <label for="classroom_name">Edit Classroom Name:</label>
-            <input type="text" name="classroom_name" id="classroom_name" value="{{ edit_classroom.classroom_name }}" required>
-        </div>
-        <input type="hidden" name="action" value="add_or_update">
-        <button type="submit">Update Classroom</button>
+            <input type="hidden" name="classroom_id" value="{{ edit_classroom.id }}">
+            <input type="hidden" name="action" value="add_or_update">
+            <div class="form-group">
+                <label for="classroom_name">Edit Classroom Name:</label>
+                <input type="text" name="classroom_name" id="classroom_name" value="{{ edit_classroom.classroom_name }}" required>
+            </div>
+            <button type="submit">Update Classroom</button>
         {% else %}
-        <div class="form-group">
-            <label for="classroom_name">Classroom Name:</label>
-            <input type="text" name="classroom_name" id="classroom_name" required>
-        </div>
-        <input type="hidden" name="action" value="add_or_update">
-        <button type="submit">Add Classroom</button>
+            <input type="hidden" name="action" value="add_or_update">
+            <div class="form-group">
+                <label for="classroom_name">Classroom Name:</label>
+                <input type="text" name="classroom_name" id="classroom_name" required>
+            </div>
+            <button type="submit">Add Classroom</button>
         {% endif %}
     </form>
-
-    <!-- Classroom List -->
-    <h2>Classroom List</h2>
-    <table>
+    
+    <table id="classroomTable" class="display">
         <thead>
             <tr>
                 <th>Classroom Name</th>
+                <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for classroom in classrooms %}
-            <tr>
-                <td>{{ classroom.classroom_name }}</td>
-                <td>
-                    <form method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="classroom_id" value="{{ classroom.id }}">
-                        <input type="hidden" name="action" value="edit">
-                        <button type="submit" class="edit-btn">Edit</button>
-                    </form>
-                    <form method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="classroom_id" value="{{ classroom.id }}">
-                        <input type="hidden" name="action" value="delete">
-                        <button type="submit" class="delete-btn">Delete</button>
-                    </form>
-                </td>
-            </tr>
+                <tr>
+                    <td>{{ classroom.classroom_name }}</td>
+                    <td>{{ classroom.status }}</td>
+                    <td>
+                        <form method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="classroom_id" value="{{ classroom.id }}">
+                            <input type="hidden" name="action" value="edit">
+                            <button type="submit" class="edit-btn">Edit</button>
+                        </form>
+                        <form method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="classroom_id" value="{{ classroom.id }}">
+                            <input type="hidden" name="action" value="delete">
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                    </td>
+                </tr>
             {% empty %}
-            <tr>
-                <td colspan="2">No classrooms found.</td>
-            </tr>
+                <tr>
+                    <td colspan="3">No classrooms found.</td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
+    
+
+    <!-- jQuery & DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var table = $('#classroomTable').DataTable({
+                dom: '<"top"B>rt<"bottom"ip>',
+                buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export Excel',
+                    exportOptions: {
+                        columns: ':not(:last-child)' // Exclude the last column
+                    },
+                    customize: function(xlsx) {
+                        // Safely retrieve the Excel sheet
+                        var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // Add a title row "Classroom Management"
+                        $('row:first', sheet).before(`
+                            <row r="1">
+                                <c t="inlineStr" s="1" r="A1">
+                                    <is><t>Classroom Management</t></is>
+                                </c>
+                            </row>
+                        `);
+
+                        // Merge title across columns
+                        var mergeCells = $('mergeCells', sheet);
+                        mergeCells.append('<mergeCell ref="A1:B1"/>');
+                        mergeCells.attr('count', parseInt(mergeCells.attr('count')) + 1);
+
+                        // Apply a predefined style safely
+                        $('row', sheet).each(function() {
+                            var cell = $(this).find('c[r$="C"]'); // "Status" column
+                            var value = cell.find('is t').text();
+
+                            if (value === 'Available') {
+                                cell.attr('s', '22'); // Predefined green style
+                            } else if (value === 'Unavailable') {
+                                cell.attr('s', '23'); // Predefined red style
+                            }
+                        });
+                    }
+                },
+                    {
+                        extend: 'pdf',
+                        text: 'Export PDF',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Exclude the last column
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Print',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Exclude the last column
+                        }
+                    }
+                ],
+                pageLength: 4,
+                lengthMenu: [4, 6, 9, 12],
+                order: [[0, 'asc']],
+                search: false
+            });
+    
+            // Custom global search functionality
+            $.fn.dataTable.ext.search.push(function(settings, searchData, index, rowData, counter) {
+                let searchValue = $('#globalSearch').val().toLowerCase().trim();
+                return searchData.some(data => data.toLowerCase().includes(searchValue));
+            });
+    
+            $('#globalSearch').on('keyup', function() {
+                table.draw();
+            });
+    
+            // Status Filter
+            $('.status-filter').on('change', function() {
+                var status = $(this).val();
+                table.column($(this).data('column')).search(status).draw();
+            });
+        });
+    </script>
+
 </body>
 </html>

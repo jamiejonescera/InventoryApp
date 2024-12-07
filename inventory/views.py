@@ -117,7 +117,7 @@ def classroom_view(request):
 class ClassroomListView(APIView):
     def get(self, request):
         try:
-            classrooms = Classroom.objects.all().values("id", "classroom_name")
+            classrooms = Classroom.objects.all().values("id", "classroom_name", "status")
             return Response({"classrooms": list(classrooms)}, status=200)
         except Exception as e:
             return Response({"error": f"An error occurred: {e}"}, status=403)

@@ -15,8 +15,8 @@ class Command(BaseCommand):
             ("Room F", "Available"),
             ("Room G", "Available"),
             ("Room H", "Available"),
-            ("Room I", "Taken"),
-            ("Room J", "Taken"),
+            ("Room I", "Available"),
+            ("Room J", "Available"),
         ]
         
         # Insert seed data into Classroom model

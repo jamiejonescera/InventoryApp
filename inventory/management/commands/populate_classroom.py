@@ -7,20 +7,22 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # Classroom seed data
         classroom_data = [
-            ("Room A", "Available"),
-            ("Room B", "Available"),
-            ("Room C", "Available"),
-            ("Room D", "Available"),
-            ("Room E", "Available"),
-            ("Room F", "Available"),
-            ("Room G", "Available"),
-            ("Room H", "Available"),
-            ("Room I", "Available"),
-            ("Room J", "Available"),
+            ("Room A", 40),
+            ("Room B", 40),
+            ("Room C", 40),
+            ("Room D", 40),
+            ("Room E", 40),
+            ("Room F", 40),
+            ("Room G", 40),
+            ("Room H", 40),
+            ("Room I", 40),
+            ("Room J", 40),
         ]
-        
+
         # Insert seed data into Classroom model
-        for classroom_name, status in classroom_data:
-            Classroom.objects.create(classroom_name=classroom_name, status=status)
+        for classroom_name, capacity in classroom_data:
+            Classroom.objects.create(classroom_name=classroom_name, capacity=capacity)
 
         self.stdout.write(self.style.SUCCESS('Successfully populated Classroom model with seed data'))
+
+

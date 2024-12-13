@@ -91,15 +91,6 @@
     <div class="filter-container">
         <h2>Classroom List</h2>
         <div>
-            <label>Filter by Status: 
-                <select class="status-filter" data-column="1">
-                    <option value="">All</option>
-                    <option value="Available">Available</option>
-                    <option value="Taken">Taken</option>
-                </select>
-            </label>
-        </div>
-        <div>
             <label>Search: 
                 <input type="text" id="globalSearch" placeholder="Search...">
             </label>
@@ -130,7 +121,7 @@
         <thead>
             <tr>
                 <th>Classroom Name</th>
-                <th>Status</th>
+                <th>Capacity</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -138,7 +129,7 @@
             {% for classroom in classrooms %}
                 <tr>
                     <td>{{ classroom.classroom_name }}</td>
-                    <td>{{ classroom.status }}</td>
+                    <td>{{ classroom.capacity }}</td>
                     <td>
                         <form method="POST" style="display:inline;">
                             {% csrf_token %}
@@ -246,11 +237,6 @@
                 table.draw();
             });
     
-            // Status Filter
-            $('.status-filter').on('change', function() {
-                var status = $(this).val();
-                table.column($(this).data('column')).search(status).draw();
-            });
         });
     </script>
 

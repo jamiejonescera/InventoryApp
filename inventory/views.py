@@ -84,9 +84,12 @@ def classroom_view(request):
                     classroom.save()
                     messages.success(request, "Classroom edited successfully.")
                 else:  # Adding a new classroom
-                    classroom, created = Classroom.objects.get_or_create(classroom_name=classroom_name)
+                    classroom, created = Classroom.objects.get_or_create(
+                        classroom_name=classroom_name,
+                        defaults={'capacity': 40}  # Automatically set capacity to 40
+                    )
                     if created:
-                        messages.success(request, "Classroom added successfully.")
+                        messages.success(request, "Classroom added successfully with default capacity.")
                     else:
                         messages.error(request, "Classroom already exists.")
 
@@ -117,7 +120,7 @@ def classroom_view(request):
 class ClassroomListView(APIView):
     def get(self, request):
         try:
-            classrooms = Classroom.objects.all().values("id", "classroom_name", "status")
+            classrooms = Classroom.objects.all().values("id", "classroom_name", "capacity")
             return Response({"classrooms": list(classrooms)}, status=200)
         except Exception as e:
             return Response({"error": f"An error occurred: {e}"}, status=403)

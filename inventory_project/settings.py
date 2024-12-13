@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-d)l0cc_df&wc_md0tb_l%b2y%w1abq$7ns9)wb^=mg1d^g_w-g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: v.split(','))
+ALLOWED_HOSTS = ['*']
 
 
 
@@ -85,10 +85,14 @@ WSGI_APPLICATION = 'inventory_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': dj_database_url.config(default=config('DATABASE_URL'))
+# }
+
 DATABASES = {
     'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
-
+# postgresql://inventory_project_inventory_user:CHXIoiZ215Lv43rRkiWdlJYQLTjR1CtT@dpg-ct36pdggph6c73bqe2jg-a.oregon-postgres.render.com/inventory_project_inventory
 
 
 # Password validation

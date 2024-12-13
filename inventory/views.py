@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product
+from .models import Product, Classroom
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.contrib import messages
 
 def inventory_view(request):
     products = Product.objects.all()
@@ -52,3 +55,69 @@ def inventory_view(request):
         })
 
     return render(request, 'inventory/inventory.html', {'products': products, 'error': error})
+
+def classroom_view(request):
+    classrooms = Classroom.objects.all()
+    edit_classroom = None
+
+    # Check for 'edit_id' in GET request to prefill the form for editing
+    edit_id = request.GET.get('edit_id')
+    if edit_id:
+        try:
+            edit_classroom = Classroom.objects.get(id=edit_id)
+        except Classroom.DoesNotExist:
+            messages.error(request, "Classroom not found.")
+            return redirect('classroom')  # Redirect if classroom not found
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        classroom_id = request.POST.get('classroom_id', '').strip()
+        classroom_name = request.POST.get('classroom_name', '').strip()
+
+        try:
+            if action == 'add_or_update':
+                if not classroom_name:
+                    messages.error(request, "Classroom name cannot be empty.")
+                elif classroom_id:  # Editing existing classroom
+                    classroom = get_object_or_404(Classroom, id=classroom_id)
+                    classroom.classroom_name = classroom_name
+                    classroom.save()
+                    messages.success(request, "Classroom edited successfully.")
+                else:  # Adding a new classroom
+                    classroom, created = Classroom.objects.get_or_create(classroom_name=classroom_name)
+                    if created:
+                        messages.success(request, "Classroom added successfully.")
+                    else:
+                        messages.error(request, "Classroom already exists.")
+
+            elif action == 'edit' and classroom_id:
+                return redirect(f'{request.path}?edit_id={classroom_id}')
+
+            elif action == 'delete' and classroom_id:
+                classroom = get_object_or_404(Classroom, id=classroom_id)
+                classroom.delete()
+                messages.success(request, "Classroom deleted successfully.")
+            else:
+                messages.error(request, "Invalid action or missing classroom ID.")
+
+        except Classroom.DoesNotExist:
+            messages.error(request, "Classroom not found.")
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred: {e}")
+
+        # Redirect after handling form submission to avoid resubmission
+        return redirect('classroom')
+
+    return render(request, 'inventory/classroom.html', {
+        'classrooms': classrooms,
+        'edit_classroom': edit_classroom
+    })
+
+
+class ClassroomListView(APIView):
+    def get(self, request):
+        try:
+            classrooms = Classroom.objects.all().values("id", "classroom_name", "status")
+            return Response({"classrooms": list(classrooms)}, status=200)
+        except Exception as e:
+            return Response({"error": f"An error occurred: {e}"}, status=403)

@@ -90,7 +90,7 @@ WSGI_APPLICATION = 'inventory_project.wsgi.application'
 # }
 
 DATABASES = {
-    'default': dj_database_url.config(default=config('@dpg-ctv948l2ng1s73dpe4tg-a.singapore-postgres.render.com'))
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
 # postgresql://inventoryapp_inventory_2lpf_user:2HG3rG5LpomcIAKKqH4y08M2uW33uwgh@dpg-ctv948l2ng1s73dpe4tg-a.singapore-postgres.render.com/inventoryapp_inventory_2lpf
 

@@ -90,10 +90,9 @@ WSGI_APPLICATION = 'inventory_project.wsgi.application'
 # }
 
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
+    'default': dj_database_url.config(default=config('@dpg-ctv948l2ng1s73dpe4tg-a.singapore-postgres.render.com'))
 }
-# postgresql://inventory_project_inventory_user:CHXIoiZ215Lv43rRkiWdlJYQLTjR1CtT@dpg-ct36pdggph6c73bqe2jg-a.oregon-postgres.render.com/inventory_project_inventory
-
+# postgresql://inventoryapp_inventory_2lpf_user:2HG3rG5LpomcIAKKqH4y08M2uW33uwgh@dpg-ctv948l2ng1s73dpe4tg-a.singapore-postgres.render.com/inventoryapp_inventory_2lpf
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

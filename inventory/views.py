@@ -124,3 +124,11 @@ class ClassroomListView(APIView):
             return Response({"classrooms": list(classrooms)}, status=200)
         except Exception as e:
             return Response({"error": f"An error occurred: {e}"}, status=403)
+        
+class ClassroomListView(APIView):
+    def get(self, request):
+        try:
+            product = Product.objects.all().values("id", "name", "quantity")
+            return Response({"products": list(product)}, status=200)
+        except Exception as e:
+            return Response({"error": f"An error occurred: {e}"}, status=403)

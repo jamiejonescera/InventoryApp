@@ -25,7 +25,7 @@ def inventory_view(request):
                 quantity = int(quantity)
                 if product_id:  # Editing existing product
                     product = Product.objects.get(id=product_id)
-                    product.name = name
+                    product.product_name = name
                     product.quantity = quantity
                     product.save()
                 else:  # Adding a new product
@@ -128,7 +128,7 @@ class ClassroomListView(APIView):
 class ProductListView(APIView):
     def get(self, request):
         try:
-            product = Product.objects.all().values("id", "name", "quantity")
+            product = Product.objects.all().values("id", "product_name", "quantity")
             return Response({"products": list(product)}, status=200)
         except Exception as e:
             return Response({"error": f"An error occurred: {e}"}, status=403)

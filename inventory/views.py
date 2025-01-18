@@ -16,20 +16,20 @@ def inventory_view(request):
         try:
             if action == 'add_or_update':
                 # Add or Update logic
-                name = request.POST.get('name', '').strip()
+                product_name = request.POST.get('product_name', '').strip()
                 quantity = request.POST.get('quantity', '')
 
-                if not name or not quantity.isdigit() or int(quantity) <= 0:
+                if not product_name or not quantity.isdigit() or int(quantity) <= 0:
                     raise ValueError("Invalid product name or quantity")
 
                 quantity = int(quantity)
                 if product_id:  # Editing existing product
                     product = Product.objects.get(id=product_id)
-                    product.product_name = name
+                    product.product_name = product_name
                     product.quantity = quantity
                     product.save()
                 else:  # Adding a new product
-                    product, created = Product.objects.get_or_create(name=name)
+                    product, created = Product.objects.get_or_create(product_name=product_name)
                     if not created:  # If product exists, increase the quantity
                         product.quantity += quantity
                     else:

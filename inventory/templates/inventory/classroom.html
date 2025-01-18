@@ -106,12 +106,20 @@
                 <label for="classroom_name">Edit Classroom Name:</label>
                 <input type="text" name="classroom_name" id="classroom_name" value="{{ edit_classroom.classroom_name }}" required>
             </div>
+            <div class="form-group">
+                <label for="capacity">Edit Capacity:</label>
+                <input type="number" name="capacity" id="capacity" value="{{ edit_classroom.capacity }}" required>
+            </div>
             <button type="submit">Update Classroom</button>
         {% else %}
             <input type="hidden" name="action" value="add_or_update">
             <div class="form-group">
                 <label for="classroom_name">Classroom Name:</label>
                 <input type="text" name="classroom_name" id="classroom_name" required>
+            </div>
+            <div class="form-group">
+                <label for="capacity">Capacity:</label>
+                <input type="number" name="capacity" id="capacity" required>
             </div>
             <button type="submit">Add Classroom</button>
         {% endif %}

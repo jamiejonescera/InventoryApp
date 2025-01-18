@@ -73,23 +73,25 @@ def classroom_view(request):
         action = request.POST.get('action')
         classroom_id = request.POST.get('classroom_id', '').strip()
         classroom_name = request.POST.get('classroom_name', '').strip()
+        capacity = request.POST.get('capacity', '').strip()
 
         try:
             if action == 'add_or_update':
-                if not classroom_name:
-                    messages.error(request, "Classroom name cannot be empty.")
+                if not classroom_name or not capacity.isdigit() or int(capacity) <= 0:
+                    messages.error(request, "Invalid classroom name or capacity.")
                 elif classroom_id:  # Editing existing classroom
                     classroom = get_object_or_404(Classroom, id=classroom_id)
                     classroom.classroom_name = classroom_name
+                    classroom.capacity = int(capacity)
                     classroom.save()
                     messages.success(request, "Classroom edited successfully.")
                 else:  # Adding a new classroom
                     classroom, created = Classroom.objects.get_or_create(
                         classroom_name=classroom_name,
-                        defaults={'capacity': 40}  # Automatically set capacity to 40
+                        defaults={'capacity': int(capacity)}
                     )
                     if created:
-                        messages.success(request, "Classroom added successfully with default capacity.")
+                        messages.success(request, "Classroom added successfully.")
                     else:
                         messages.error(request, "Classroom already exists.")
 

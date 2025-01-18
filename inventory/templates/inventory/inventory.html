@@ -58,7 +58,27 @@
             color: red;
             font-weight: bold;
         }
+        p.success-message {
+            color: green;
+            font-weight: bold;
+        }
+        .filter-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .filter-container label {
+            margin-right: 10px;
+        }
+        .status-filter {
+            padding: 8px;
+        }
     </style>
+
+    <!-- DataTables Core CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 </head>
 <body>
     <h1>Inventory Management</h1>
@@ -66,6 +86,10 @@
     <!-- Error Message -->
     {% if error %}
     <p class="error-message">{{ error }}</p>
+    {% endif %}
+    <!-- Success Message -->
+    {% if success %}
+    <p class="success-message">{{ success }}</p>
     {% endif %}
 
     <!-- Add/Update Form -->
@@ -102,8 +126,16 @@
 
 
     <!-- Product List -->
-    <h2>Product List</h2>
-    <table>
+    <div class="filter-container">
+        <h2>Product List</h2>
+        <div>
+            <label>Search: 
+                <input type="text" id="globalSearch" placeholder="Search...">
+            </label>
+        </div>
+    </div>
+
+    <table id="productTable" class="display">
         <thead>
             <tr>
                 <th>Product Name</th>
@@ -138,5 +170,72 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- jQuery & DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var table = $('#productTable').DataTable({
+                dom: '<"top"B>rt<"bottom"ip>',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Export Excel',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Exclude the last column
+                        },
+                        customize: function(xlsx) {
+                            var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            $('row:first', sheet).before(`
+                                <row r="1">
+                                    <c t="inlineStr" s="1" r="A1">
+                                        <is><t>Inventory Management</t></is>
+                                    </c>
+                                </row>
+                            `);
+                            var mergeCells = $('mergeCells', sheet);
+                            mergeCells.append('<mergeCell ref="A1:B1"/>');
+                            mergeCells.attr('count', parseInt(mergeCells.attr('count')) + 1);
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        text: 'Export PDF',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Exclude the last column
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Print',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Exclude the last column
+                        }
+                    }
+                ],
+                pageLength: 4,
+                lengthMenu: [4, 6, 9, 12],
+                order: [[0, 'asc']],
+                search: false
+            });
+
+            $.fn.dataTable.ext.search.push(function(settings, searchData, index, rowData, counter) {
+                let searchValue = $('#globalSearch').val().toLowerCase().trim();
+                return searchData.some(data => data.toLowerCase().includes(searchValue));
+            });
+
+            $('#globalSearch').on('keyup', function() {
+                table.draw();
+            });
+        });
+    </script>
 </body>
 </html>

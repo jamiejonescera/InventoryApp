@@ -151,7 +151,7 @@ class RequestManagementView(View):
     def get(self, request):
         # Fetch all requests from the database
         requests = Request.objects.all().order_by('-created_at')
-        return render(request, 'recieve.html', {'requests': requests})
+        return render(request, 'inventory/recieve.html', {'requests': requests})
 # View for handling approve/deny actions
 
 @csrf_exempt

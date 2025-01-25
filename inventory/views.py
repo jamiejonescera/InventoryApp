@@ -1,8 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product, Classroom
+from .models import Product, Classroom, Request
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.timezone import now
+from datetime import timedelta
+from django.http import JsonResponse
+# views.py
+from django.views import View
+from django.shortcuts import render
+from .models import Request
+
 
 def inventory_view(request):
     products = Product.objects.all()
@@ -134,3 +143,50 @@ class ProductListView(APIView):
             return Response({"products": list(product)}, status=200)
         except Exception as e:
             return Response({"error": f"An error occurred: {e}"}, status=403)
+        
+
+
+# View for rendering the requests management page
+class RequestManagementView(View):
+    def get(self, request):
+        # Fetch all requests from the database
+        requests = Request.objects.all().order_by('-created_at')
+        return render(request, 'requests_management.html', {'requests': requests})
+# View for handling approve/deny actions
+
+@csrf_exempt
+def handle_request_action(request):
+    if request.method == "POST":
+        request_id = request.POST.get('request_id')
+        action = request.POST.get('action')
+
+        try:
+            # Get the request object
+            req = Request.objects.get(id=request_id)
+
+            # Update the status based on action
+            if action == "approve":
+                req.status = "Approved"
+                messages.success(request, f"Request {req.id} has been approved.")
+            elif action == "deny":
+                req.status = "Denied"
+                messages.error(request, f"Request {req.id} has been denied.")
+            
+            req.updated_at = now()
+            req.save()
+        except Request.DoesNotExist:
+            messages.error(request, "Request not found.")
+
+        # Redirect back to the management page
+        return redirect('request_management')
+
+# Notification endpoint for new requests (example: AJAX polling or WebSocket integration)
+def get_notifications(request):
+    if request.method == "GET":
+        # Fetch new requests (Example: requests created in the last 5 minutes)
+        recent_requests = Request.objects.filter(created_at__gte=now() - timedelta(minutes=5))
+        data = {
+            "count": recent_requests.count(),
+            "requests": list(recent_requests.values("id", "requester_name", "description", "created_at"))
+        }
+        return JsonResponse(data)

@@ -7,7 +7,7 @@ urlpatterns = [
     path('inventory/', views.inventory_view, name='inventory'),
     path('classroom/', ClassroomListView.as_view(), name="classroom_api"),
     path('product/', ProductListView.as_view(), name="product_api"),
-    path('requests/', RequestManagementView.as_view(), name="request_api"),
+    path('request_list/', RequestManagementView.as_view(), name="request_api"),
     path('handle_request_action/', views.handle_request_action, name='handle_request_action'),
     path('get_notifications/', views.get_notifications, name='get_notifications'),
 ]

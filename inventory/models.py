@@ -17,10 +17,14 @@ class Classroom(models.Model):
     def __str__(self):
         return self.classroom_name
     
-
 class Request(models.Model):
-    requester_name = models.CharField(max_length=255)
-    description = models.TextField()
-    status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Denied', 'Denied')], default='Pending')
-    created_at = models.DateTimeField(default=now)
-    updated_at = models.DateTimeField(default=now)
+    id = models.AutoField(primary_key=True)
+    staff_name = models.CharField(max_length=255)
+    product_name = models.CharField(max_length=255)
+    request_status = models.CharField(max_length=255)
+    purpose = models.TextField(max_length=255)
+    quantity_requested = models.IntegerField(default=0)
+    contact_number = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return self.staff_name

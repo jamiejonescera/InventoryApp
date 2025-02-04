@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils.timezone import now  # Import `now` from django.utils.timezone
+from django.utils.timezone import now
+
+
 
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
@@ -25,6 +28,8 @@ class Request(models.Model):
     purpose = models.TextField(max_length=255)
     quantity_requested = models.IntegerField(default=0)
     contact_number = models.IntegerField(blank=True, null=True)
+    created_at = models.DateTimeField(default=now)  # Add this line
 
     def __str__(self):
         return self.staff_name
+

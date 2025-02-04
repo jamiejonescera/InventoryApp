@@ -147,20 +147,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script>
-        // Fetch data from the external system
-        window.onload = function() {
-            fetch("https://arimasms.onrender.com/request_form/")  // Use your actual API link here
-                .then(response => response.json())  // Assuming the response is in JSON format
-                .then(data => {
-                    console.log(data);  // Log data to console for debugging
     
-                    // Process the fetched data (for example, populate a table or handle requests)
-                    // Example: If the API returns a list of requests, you can handle them here
-                })
-                .catch(error => {
-                    console.error("Error fetching data from the external system:", error);
-                });
+    <script>
+        // Fetch data from the external system when the window loads
+        window.onload = function() {
+            fetch('https://arimasms.onrender.com/request_form/', {
+                method: 'GET',
+                credentials: 'include'  // Ensures cookies (session) are included in the request
+            })
+            .then(response => response.json())  // Assuming the response is in JSON format
+            .then(data => {
+                console.log(data);  // Log data to console for debugging
+        
+                // Process the fetched data (for example, populate a table or handle requests)
+                // Example: If the API returns a list of requests, you can handle them here
+            })
+            .catch(error => {
+                console.error('Error fetching data from the external system:', error);
+            });
         };
     
         let currentQuantity = 0;
@@ -187,7 +191,7 @@
             }
         }
     </script>
-
+    
     <style>
         .notification-container {
             margin-bottom: 20px;

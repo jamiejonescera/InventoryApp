@@ -160,25 +160,29 @@ def handle_request_action(request):
         request_id = request.POST.get('request_id')
         action = request.POST.get('action')
 
-        try:
-            # Get the request object
-            req = Request.objects.get(id=request_id)
+        # Validate request ID
+        if not request_id:
+            return JsonResponse({"success": False, "message": "Missing request ID."}, status=400)
 
-            # Update the status based on action
-            if action == "approve":
-                req.status = "Approved"
-                messages.success(request, f"Request {req.id} has been approved.")
-            elif action == "deny":
-                req.status = "Denied"
-                messages.error(request, f"Request {req.id} has been denied.")
-            
+        # Validate action
+        if action not in ["approve", "deny"]:
+            return JsonResponse({"success": False, "message": "Invalid action."}, status=400)
+
+        try:
+            # Fetch the request object safely
+            req = get_object_or_404(Request, id=request_id)
+
+            # Update status
+            req.status = "Approved" if action == "approve" else "Denied"
             req.updated_at = now()
             req.save()
-        except Request.DoesNotExist:
-            messages.error(request, "Request not found.")
 
-        # Redirect back to the management page
-        return redirect('request_management')
+            return JsonResponse({"success": True, "message": f"Request {req.id} {req.status.lower()} successfully."})
+
+        except ValueError:
+            return JsonResponse({"success": False, "message": "Invalid request ID format."}, status=400)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
 
 # Notification endpoint for new requests (example: AJAX polling or WebSocket integration)
 def get_notifications(request):

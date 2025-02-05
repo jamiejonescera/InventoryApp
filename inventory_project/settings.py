@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     # Custom app
     'inventory',
+    "corsheaders",  
 ]
 
 MIDDLEWARE = [
@@ -56,9 +57,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Added for static file serving
+    "corsheaders.middleware.CorsMiddleware",
     
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all sources (or set specific ones)
 
 
 ROOT_URLCONF = 'inventory_project.urls'

@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.views import View
 from django.shortcuts import render
 from .models import Request
-
+from django.views.decorators.csrf import csrf_protect
 
 def inventory_view(request):
     products = Product.objects.all()
@@ -149,40 +149,22 @@ class ProductListView(APIView):
 # View for rendering the requests management page
 class RequestManagementView(View):
     def get(self, request):
-        # Fetch all requests from the database
-        requests = Request.objects.all().order_by('-created_at')
-        return render(request, 'inventory/recieve.html', {'requests': requests})
-# View for handling approve/deny actions
-
-@csrf_exempt
+        requests = Request.objects.all().order_by('-created_at').values()
+        return JsonResponse(list(requests), safe=False)
+@csrf_protect
 def handle_request_action(request):
     if request.method == "POST":
-        request_id = request.POST.get('request_id')
-        action = request.POST.get('action')
+        request_id = request.POST.get("request_id")
+        action = request.POST.get("action")
 
-        # Validate request ID
-        if not request_id:
-            return JsonResponse({"success": False, "message": "Missing request ID."}, status=400)
-
-        # Validate action
-        if action not in ["approve", "deny"]:
-            return JsonResponse({"success": False, "message": "Invalid action."}, status=400)
-
-        try:
-            # Fetch the request object safely
-            req = get_object_or_404(Request, id=request_id)
-
-            # Update status
-            req.status = "Approved" if action == "approve" else "Denied"
-            req.updated_at = now()
-            req.save()
-
-            return JsonResponse({"success": True, "message": f"Request {req.id} {req.status.lower()} successfully."})
-
-        except ValueError:
-            return JsonResponse({"success": False, "message": "Invalid request ID format."}, status=400)
-
-    return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
+        req = get_object_or_404(Request, id=request_id)
+        if action == "approve":
+            req.request_status = "Approved"
+        elif action == "deny":
+            req.request_status = "Denied"
+        req.save()
+        return JsonResponse({"message": f"Request {action}d successfully"})
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 # Notification endpoint for new requests (example: AJAX polling or WebSocket integration)
 def get_notifications(request):

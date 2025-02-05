@@ -24,12 +24,11 @@ class Request(models.Model):
     id = models.AutoField(primary_key=True)
     staff_name = models.CharField(max_length=255)
     product_name = models.CharField(max_length=255)
-    request_status = models.CharField(max_length=255)
-    purpose = models.TextField(max_length=255)
     quantity_requested = models.IntegerField(default=0)
-    contact_number = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(default=now)  # Add this line
+    purpose = models.TextField(max_length=255)
+    contact_number = models.CharField(max_length=20, blank=True, null=True)  # Changed IntegerField to CharField to support dashes
+    request_status = models.CharField(max_length=50, choices=[("Pending", "Pending"), ("Approved", "Approved"), ("Denied", "Denied")])
+    created_at = models.DateTimeField(default=now)
 
     def __str__(self):
-        return self.staff_name
-
+        return f"{self.staff_name} - {self.product_name} ({self.quantity_requested})"

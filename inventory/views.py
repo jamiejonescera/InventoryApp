@@ -11,7 +11,6 @@ from django.http import JsonResponse
 from django.views import View
 from django.shortcuts import render
 from .models import Request
-import requests
 
 
 def inventory_view(request):
@@ -145,96 +144,53 @@ class ProductListView(APIView):
         except Exception as e:
             return Response({"error": f"An error occurred: {e}"}, status=403)
         
-# Fetch data from external server
-def fetch_requests():
-    url = "https://arimasms.onrender.com/request_form/"  # Source URL
-    headers = {
-        "Authorization": "Bearer YOUR_ACCESS_TOKEN",  # If token-based authentication is needed
-    }
-    
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
-        return response.json()  # Return JSON response
-    except requests.RequestException as e:
-        print(f"Error fetching data: {e}")
-        return []
 
-# Display request list (renamed to receive.html)
-def request_list(request):
-    data = fetch_requests()  # Fetch request data from external source
-    return render(request, 'inventory/request_list.html', {'requests': data})
 
-# Update request status (Approve/Disapprove)
-def update_request_status(request):
+# View for rendering the requests management page
+class RequestManagementView(View):
+    def get(self, request):
+        # Fetch all requests from the database
+        requests = Request.objects.all().order_by('-created_at')
+        return render(request, 'inventory/recieve.html', {'requests': requests})
+# View for handling approve/deny actions
+
+@csrf_exempt
+def handle_request_action(request):
     if request.method == "POST":
-        request_id = request.POST.get("request_id")
-        status = request.POST.get("status")
-        reason = request.POST.get("reason", "")
+        request_id = request.POST.get('request_id')
+        action = request.POST.get('action')
 
-        # Send update request to external server
-        update_url = f"https://arimasms.onrender.com/update_request_status/{request_id}/"
-        headers = {
-            "Authorization": "Bearer YOUR_ACCESS_TOKEN",
-            "Content-Type": "application/json",
-        }
-        data = {"status": status, "reason": reason}
+        # Validate request ID
+        if not request_id:
+            return JsonResponse({"success": False, "message": "Missing request ID."}, status=400)
+
+        # Validate action
+        if action not in ["approve", "deny"]:
+            return JsonResponse({"success": False, "message": "Invalid action."}, status=400)
 
         try:
-            response = requests.post(update_url, json=data, headers=headers)
-            response.raise_for_status()
-            return JsonResponse({"message": "Status updated successfully"})
-        except requests.RequestException as e:
-            return JsonResponse({"error": str(e)}, status=400)
+            # Fetch the request object safely
+            req = get_object_or_404(Request, id=request_id)
 
-    return JsonResponse({"error": "Invalid request"}, status=400)
+            # Update status
+            req.status = "Approved" if action == "approve" else "Denied"
+            req.updated_at = now()
+            req.save()
 
+            return JsonResponse({"success": True, "message": f"Request {req.id} {req.status.lower()} successfully."})
 
-# # View for rendering the requests management page
-# class RequestManagementView(View):
-#     def get(self, request):
-#         # Fetch all requests from the database
-#         requests = Request.objects.all().order_by('-created_at')
-#         return render(request, 'inventory/recieve.html', {'requests': requests})
-# # View for handling approve/deny actions
+        except ValueError:
+            return JsonResponse({"success": False, "message": "Invalid request ID format."}, status=400)
 
-# @csrf_exempt
-# def handle_request_action(request):
-#     if request.method == "POST":
-#         request_id = request.POST.get('request_id')
-#         action = request.POST.get('action')
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
 
-#         # Validate request ID
-#         if not request_id:
-#             return JsonResponse({"success": False, "message": "Missing request ID."}, status=400)
-
-#         # Validate action
-#         if action not in ["approve", "deny"]:
-#             return JsonResponse({"success": False, "message": "Invalid action."}, status=400)
-
-#         try:
-#             # Fetch the request object safely
-#             req = get_object_or_404(Request, id=request_id)
-
-#             # Update status
-#             req.status = "Approved" if action == "approve" else "Denied"
-#             req.updated_at = now()
-#             req.save()
-
-#             return JsonResponse({"success": True, "message": f"Request {req.id} {req.status.lower()} successfully."})
-
-#         except ValueError:
-#             return JsonResponse({"success": False, "message": "Invalid request ID format."}, status=400)
-
-#     return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
-
-# # Notification endpoint for new requests (example: AJAX polling or WebSocket integration)
-# def get_notifications(request):
-#     if request.method == "GET":
-#         # Fetch new requests (Example: requests created in the last 5 minutes)
-#         recent_requests = Request.objects.filter(created_at__gte=now() - timedelta(minutes=5))
-#         data = {
-#             "count": recent_requests.count(),
-#             "requests": list(recent_requests.values("id", "requester_name", "description", "created_at"))
-#         }
-#         return JsonResponse(data)
+# Notification endpoint for new requests (example: AJAX polling or WebSocket integration)
+def get_notifications(request):
+    if request.method == "GET":
+        # Fetch new requests (Example: requests created in the last 5 minutes)
+        recent_requests = Request.objects.filter(created_at__gte=now() - timedelta(minutes=5))
+        data = {
+            "count": recent_requests.count(),
+            "requests": list(recent_requests.values("id", "requester_name", "description", "created_at"))
+        }
+        return JsonResponse(data)

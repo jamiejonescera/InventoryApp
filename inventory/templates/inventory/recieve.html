@@ -1,4 +1,4 @@
-{% comment %} {% load static %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -227,79 +227,4 @@
     </style>
 </body>
 
-</html> {% endcomment %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request List</title>
-    <style>
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid black; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .approve { color: green; cursor: pointer; }
-        .reject { color: red; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <h1>Request List</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Request ID</th>
-                <th>Staff Name</th>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Date Requested</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="request-table">
-            {% for request in requests %}
-            <tr>
-                <td>{{ request.id }}</td>
-                <td>{{ request.staff_name }}</td>
-                <td>{{ request.product_name }}</td>
-                <td>{{ request.quantity_requested }}</td>
-                <td>{{ request.created_at }}</td>
-                <td id="status-{{ request.id }}">{{ request.request_status }}</td>
-                <td>
-                    <button class="approve" onclick="updateStatus({{ request.id }}, 'approved')">Approve</button>
-                    <button class="reject" onclick="updateStatus({{ request.id }}, 'disapproved')">Reject</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <script>
-        function updateStatus(requestId, status) {
-            let reason = "";
-            if (status === "disapproved") {
-                reason = prompt("Enter reason for disapproval:");
-                if (!reason) return; // If no reason, cancel action
-            }
-
-            fetch("/update_request_status/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: `request_id=${requestId}&status=${status}&reason=${reason}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    document.getElementById(`status-${requestId}`).innerText = status;
-                    alert("Status updated successfully");
-                } else {
-                    alert("Error updating status");
-                }
-            });
-        }
-    </script>
-</body>
 </html>

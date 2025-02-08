@@ -147,11 +147,20 @@ class ProductListView(APIView):
 
 
 # View for rendering the requests management page
+
+
+
+def request_list(request):
+    requests = Request.objects.all().values(
+        "id", "staff_name", "product_name", "quantity_requested", "purpose", "request_status"
+    )
+    return JsonResponse(list(requests), safe=False)
+
 class RequestManagementView(View):
     def get(self, request):
         requests = Request.objects.all().order_by('-created_at').values()
         return JsonResponse(list(requests), safe=False)
-@csrf_protect
+@csrf_exempt  # This disables CSRF protection for this view
 def handle_request_action(request):
     if request.method == "POST":
         request_id = request.POST.get("request_id")
@@ -163,7 +172,9 @@ def handle_request_action(request):
         elif action == "deny":
             req.request_status = "Denied"
         req.save()
+
         return JsonResponse({"message": f"Request {action}d successfully"})
+    
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 # Notification endpoint for new requests (example: AJAX polling or WebSocket integration)

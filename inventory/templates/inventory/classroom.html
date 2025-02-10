@@ -109,6 +109,22 @@
             <div class="form-group">
                 <label for="capacity">Edit Capacity:</label>
                 <input type="number" name="capacity" id="capacity" value="{{ edit_classroom.capacity }}" required>
+            </div><div class="form-group">
+                <label for="facility_type">Facility Type:</label>
+                <select class="form-control" name="facility_type" id="facility_type" required>
+                    <option value="">Select a Facility Type</option> 
+                    <option value="admin building" {% if edit_classroom.facility_type == 'admin building' %}selected{% endif %}>admin building</option>
+                    <option value="library" {% if edit_classroom.facility_type == 'library' %}selected{% endif %}>library</option>
+                    <option value="Acad building" {% if edit_classroom.facility_type == 'Acad building' %}selected{% endif %}>Acad building</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="classroom_status">Facility Status:</label>
+                <select class="form-control" name="classroom_status" id="classroom_status" required>
+                    <option value="">Select a Facility Status</option>
+                    <option value="Vacant" {% if edit_classroom.classroom_status == 'Vacant' %}selected{% endif %}>Vacant</option>
+                    <option value="Occupied" {% if edit_classroom.classroom_status == 'Occupied' %}selected{% endif %}>Occupied</option>
+                </select>
             </div>
             <button type="submit">Update Classroom</button>
         {% else %}

@@ -83,21 +83,28 @@ def classroom_view(request):
         classroom_id = request.POST.get('classroom_id', '').strip()
         classroom_name = request.POST.get('classroom_name', '').strip()
         capacity = request.POST.get('capacity', '').strip()
+        facility_type = request.POST.get('facility_type', '').strip()
+        classroom_status = request.POST.get('classroom_status', '').strip()
 
         try:
             if action == 'add_or_update':
                 if not classroom_name or not capacity.isdigit() or int(capacity) <= 0:
-                    messages.error(request, "Invalid classroom name or capacity.")
+                    messages.error(request, "Invalid classroom name or capacity or facility type.")
                 elif classroom_id:  # Editing existing classroom
                     classroom = get_object_or_404(Classroom, id=classroom_id)
                     classroom.classroom_name = classroom_name
                     classroom.capacity = int(capacity)
+                    classroom.facility_type = facility_type
+                    classroom.classroom_status = classroom_status
                     classroom.save()
                     messages.success(request, "Classroom edited successfully.")
                 else:  # Adding a new classroom
                     classroom, created = Classroom.objects.get_or_create(
                         classroom_name=classroom_name,
+                        facility_type = facility_type,
+                        classroom_status = classroom_status,
                         defaults={'capacity': int(capacity)}
+                        
                     )
                     if created:
                         messages.success(request, "Classroom added successfully.")
@@ -131,7 +138,7 @@ def classroom_view(request):
 class ClassroomListView(APIView):
     def get(self, request):
         try:
-            classrooms = Classroom.objects.all().values("id", "classroom_name", "capacity")
+            classrooms = Classroom.objects.all().values("id", "classroom_name", "capacity", "facility_type", "classroom_status")
             return Response({"classrooms": list(classrooms)}, status=200)
         except Exception as e:
             return Response({"error": f"An error occurred: {e}"}, status=403)

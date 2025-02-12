@@ -152,6 +152,25 @@ class ProductListView(APIView):
             return Response({"error": f"An error occurred: {e}"}, status=403)
         
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Classroom
+from .serializers import ClassroomSerializer
+
+class ClassroomListView(APIView):
+    def get(self, request):
+        classrooms = Classroom.objects.all()
+        serializer = ClassroomSerializer(classrooms, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ClassroomSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # View for rendering the requests management page
 
@@ -194,3 +213,8 @@ def get_notifications(request):
             "requests": list(recent_requests.values("id", "requester_name", "description", "created_at"))
         }
         return JsonResponse(data)
+    
+    class ClassroomListView(View):
+        def get(self, request):
+            classrooms = Classroom.objects.values('name', 'capacity')  # Fetch only name & capacity
+            return JsonResponse(list(classrooms), safe=False)  # Convert QuerySet to list

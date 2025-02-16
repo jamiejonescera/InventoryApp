@@ -18,7 +18,7 @@ class Classroom(models.Model):
     capacity = models.IntegerField(blank=True, null=True)
     facility_type = models.CharField(max_length=255)
     classroom_status = models.CharField(max_length=20, blank=True, null= True)
- 
+    alloted_slots = models.IntegerField(default=1)
     def __str__(self):
         return self.classroom_name
     

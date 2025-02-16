@@ -113,9 +113,10 @@
                 <label for="facility_type">Facility Type:</label>
                 <select class="form-control" name="facility_type" id="facility_type" required>
                     <option value="">Select a Facility Type</option> 
-                    <option value="admin building" {% if edit_classroom.facility_type == 'admin building' %}selected{% endif %}>admin building</option>
-                    <option value="library" {% if edit_classroom.facility_type == 'library' %}selected{% endif %}>library</option>
-                    <option value="Acad building" {% if edit_classroom.facility_type == 'Acad building' %}selected{% endif %}>Acad building</option>
+                    <option value="Admin Building" {% if edit_classroom.facility_type == 'Admin Building' %}selected{% endif %}>Admin Building</option>
+                    <option value="Library" {% if edit_classroom.facility_type == 'Library' %}selected{% endif %}>Library</option>
+                    <option value="Acad Building" {% if edit_classroom.facility_type == 'Acad Building' %}selected{% endif %}>Acad Building</option>
+                    <option value="Laboratory" {% if edit_classroom.facility_type == 'Laboratory' %}selected{% endif %}>Laboratory</option>
                 </select>
             </div>
             <div class="form-group">
@@ -123,7 +124,9 @@
                 <select class="form-control" name="classroom_status" id="classroom_status" required>
                     <option value="">Select a Facility Status</option>
                     <option value="Vacant" {% if edit_classroom.classroom_status == 'Vacant' %}selected{% endif %}>Vacant</option>
+                    <option value="Available" {% if edit_classroom.classroom_status == 'Available' %}selected{% endif %}>Available</option>
                     <option value="Occupied" {% if edit_classroom.classroom_status == 'Occupied' %}selected{% endif %}>Occupied</option>
+                    <option value="Full" {% if edit_classroom.classroom_status == 'Full' %}selected{% endif %}>Full</option>
                 </select>
             </div>
             <button type="submit">Update Classroom</button>
@@ -141,9 +144,10 @@
                 <label for="facility_type">Facility Type:</label>
                 <select class="form-control" name="facility_type" id="facility_type" required>
                     <option value="">Select a Facility Type</option> <!-- Optional placeholder -->
-                    <option value="admin building">admin building</option>
-                    <option value="library">library</option>
-                    <option value="Acad  building">Acad  building</option>
+                    <option value="Admin Building">Admin Building</option>
+                    <option value="Library">Library</option>
+                    <option value="Acad Building">Acad Building</option>
+                    <option value="Laboratory">Laboratory</option>
                 </select>
             </div>
             <div class="form-group">
@@ -151,7 +155,9 @@
                 <select class="form-control" name="classroom_status" id="classroom_status" required>
                     <option value="">Select a Facility Status</option> <!-- Optional placeholder -->
                     <option value="Vacant">Vacant</option>
+                    <option value="Available">Available</option>
                     <option value="Occupied">Occupied</option>
+                    <option value="Full">Full</option>
                 </select>
             </div>
             <button type="submit">Add Classroom</button>
@@ -165,6 +171,7 @@
                 <th>Capacity</th>
                 <th>Facility Type</th>
                 <th>Status</th>
+                <th>Alloted Slots</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -175,6 +182,7 @@
                     <td>{{ classroom.capacity }}</td>
                     <td>{{ classroom.facility_type}}</td>
                     <td>{{ classroom.classroom_status}}</td>
+                    <td>{{ classroom.alloted_slots}}</td>
                     <td>
                         <form method="POST" style="display:inline;">
                             {% csrf_token %}

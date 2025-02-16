@@ -150,7 +150,7 @@ class ProductListView(APIView):
             return Response({"products": list(product)}, status=200)
         except Exception as e:
             return Response({"error": f"An error occurred: {e}"}, status=403)
-        
+
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -158,7 +158,7 @@ from rest_framework import status
 from .models import Classroom
 from .serializers import ClassroomSerializer
 
-class ClassroomListView(APIView):
+class ClassroomListViewLogistics(APIView):
     def get(self, request):
         classrooms = Classroom.objects.all()
         serializer = ClassroomSerializer(classrooms, many=True)
